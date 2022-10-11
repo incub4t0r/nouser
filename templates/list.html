@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+    <a href="/">Home</a>
+    <a href="/new">Add a new crawl</a>
+    <h1>Crawls</h1>
+    <ul>
+        {% for crawl in crawls %}
+            <li>{{ crawl.crawl_id }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
