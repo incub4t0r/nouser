@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 import os
@@ -16,7 +16,6 @@ ROOT = os.path.dirname(os.path.realpath(__file__))
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
     id = db.Column(db.String, primary_key=True)
-    # crawls = db.Column(db.Integer)
     crawls = db.relationship("Crawl")
 
     def __repr__(self):
@@ -56,7 +55,10 @@ def index():
         if db.session.query(User).filter_by(id=session['id']).first() is not None:
             return render_template('index.html', msg="You have a session ready to go")
         else:
-            return render_template('index.html', msg="You have a session but no user wtf happened")
+            resp = make_response(redirect('/'))
+            session.pop('id', None)
+            print("session popped, there was a session but there was no user in the db")
+            return resp
     else:
         session['id'] = secrets.token_hex(16)
         db.session.add(User(id=session['id']))
@@ -71,8 +73,8 @@ def new():
         crawl_id = request.form['crawl_id']
         db.session.add(Crawl(user_id=user.id, crawl_id=crawl_id))
         db.session.commit()
-        print(user)
-        return redirect(url_for('index'))
+        print(f"user {user.id} added crawl {crawl_id}")
+        return redirect(url_for('list'))
     return render_template('new.html')
 
 
